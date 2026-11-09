@@ -4,7 +4,7 @@
 
 Kaasu is an AI accounts-receivable agent for freelancers and small businesses. You talk to it in plain English, and it creates real **PayPal invoices**, chases late payers with the right tone at the right time, predicts who will pay late, and automatically **splits incoming payments with collaborators via PayPal Payouts**. A human approves every action that emails a client or moves money.
 
-**Live demo:** `https://<your-app>.onrender.com` *(free tier: the first load can take ~1 minute while the server wakes up)*
+**Live demo:** https://kaasu-84i3.onrender.com *(free tier: the first load can take ~1 minute while the server wakes up)*
 **Demo video:** `https://youtube.com/...`
 
 ---
@@ -101,7 +101,7 @@ Open **http://localhost:3000**.
 1. Push this repo to GitHub.
 2. Render → **New → Web Service** → connect the repo. Build `npm install`, start `npm start`, instance type **Free**. (Or use **New → Blueprint** with the included `render.yaml`.)
 3. Add the environment variables `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET`, and `GEMINI_API_KEY`.
-4. *(Optional)* In the PayPal developer dashboard, add a sandbox webhook to `https://<your-app>.onrender.com/api/webhooks/paypal` for the invoicing events, and set `PAYPAL_WEBHOOK_ID`.
+4. *(Optional)* In the PayPal developer dashboard, add a sandbox webhook to `https://kaasu-84i3.onrender.com/api/webhooks/paypal` for the invoicing events, and set `PAYPAL_WEBHOOK_ID`.
 
 Free Render services sleep when idle and keep no disk between restarts. Kaasu handles this by re-syncing all invoices from PayPal on startup.
 
