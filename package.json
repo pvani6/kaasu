@@ -1,0 +1,19 @@
+{
+  "name": "kaasu",
+  "version": "1.0.0",
+  "description": "Kaasu - an AI agent that gets freelancers paid, built on PayPal Invoicing, Payouts and Google Gemini.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "ag-grid-community": "33.3.2",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2"
+  }
+}

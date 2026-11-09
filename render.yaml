@@ -1,0 +1,23 @@
+# Render Blueprint: deploys Kaasu on Render's FREE web service tier.
+# In Render: New > Blueprint > pick this repo. You'll be asked for the secret values.
+services:
+  - type: web
+    name: kaasu
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/status
+    envVars:
+      - key: PAYPAL_CLIENT_ID
+        sync: false
+      - key: PAYPAL_CLIENT_SECRET
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: PAYPAL_API_BASE
+        value: https://api-m.sandbox.paypal.com
+      - key: GEMINI_MODEL
+        value: gemini-2.5-flash
+      - key: AGENT_SCAN_MINUTES
+        value: "30"

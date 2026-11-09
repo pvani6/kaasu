@@ -1,0 +1,9 @@
+node_modules/
+.env
+data/
+*.log
+.DS_Store
+
+MY_STEPS.md
+VIDEO_SCRIPT.md
+DEVPOST_SUBMISSION.md

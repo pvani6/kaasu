@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kaasu · AI agent that gets you paid</title>
+  <meta name="description" content="Kaasu is an AI accounts-receivable agent for freelancers, built on PayPal Invoicing, Payouts and Google Gemini." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%23E8A33D'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%231B2A41' stroke-width='2.5'/%3E%3Crect x='13' y='13' width='6' height='6' fill='%231B2A41'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <script src="vendor/ag-grid-community.min.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <svg class="coin" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="14" fill="var(--marigold)"/><circle cx="16" cy="16" r="9" fill="none" stroke="var(--ink)" stroke-width="2.5"/><rect x="13" y="13" width="6" height="6" fill="var(--ink)"/></svg>
+      <div>
+        <h1>Kaasu</h1>
+        <p class="tagline">Your AI agent that gets you paid</p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <span id="pill-paypal" class="pill">PayPal …</span>
+      <span id="pill-ai" class="pill">AI …</span>
+      <button class="btn ghost" id="btn-sync" title="Refresh invoice statuses from PayPal">⟳ Sync PayPal</button>
+      <button class="btn ghost" id="btn-seed" title="Add sample invoice history (never sent to PayPal)">Sample data</button>
+      <button class="btn ghost small" id="btn-reset" title="Clear local data">Reset</button>
+    </div>
+  </header>
+
+  <section class="kpis" aria-label="Key numbers">
+    <div class="kpi"><span class="kpi-label">Outstanding</span><span class="kpi-value" id="k-out">–</span><span class="kpi-sub" id="k-out-sub"></span></div>
+    <div class="kpi warn"><span class="kpi-label">Overdue</span><span class="kpi-value" id="k-over">–</span><span class="kpi-sub" id="k-over-sub"></span></div>
+    <div class="kpi good"><span class="kpi-label">Paid · last 30 days</span><span class="kpi-value" id="k-paid">–</span><span class="kpi-sub" id="k-paid-sub"></span></div>
+    <div class="kpi"><span class="kpi-label">Expected · next 30 days</span><span class="kpi-value" id="k-exp">–</span><span class="kpi-sub">risk-weighted by AI score</span></div>
+  </section>
+
+  <main class="layout">
+    <section class="card chat" aria-label="Chat with Kaasu">
+      <div class="card-head">
+        <h2>Ask Kaasu</h2>
+        <span class="muted small">Plain English. Nothing is sent without your approval.</span>
+      </div>
+      <div id="messages" class="messages" aria-live="polite"></div>
+      <div class="chips" id="chips">
+        <button class="chip">Bill Priya Shah priya@acme.example $450 for logo design, due Friday</button>
+        <button class="chip">Who owes me money?</button>
+        <button class="chip">Chase my overdue invoices</button>
+        <button class="chip">How's my cash flow?</button>
+      </div>
+      <form id="chat-form" class="chat-form">
+        <textarea id="chat-input" rows="2" placeholder="e.g. Invoice Tom tom@studio.example €800 for website copy, due in 10 days. Split 30% with ana@writer.example" required></textarea>
+        <button class="btn primary" type="submit" id="chat-send">Send</button>
+      </form>
+    </section>
+
+    <div class="right">
+      <div class="row2">
+        <section class="card inbox" aria-label="Agent inbox">
+          <div class="card-head">
+            <h2>Agent inbox <span class="count" id="inbox-count">0</span></h2>
+            <button class="btn small" id="btn-scan" title="Let the agent look for invoices to chase and payouts to split">🤖 Run agent scan</button>
+          </div>
+          <div id="inbox" class="inbox-list"></div>
+        </section>
+
+        <section class="card insights" aria-label="AI insights">
+          <div class="card-head">
+            <h2>Cash-flow insights</h2>
+            <button class="btn small ghost" id="btn-insights" title="Regenerate">↻</button>
+          </div>
+          <ul id="insights" class="insight-list"></ul>
+          <p class="muted small" id="insights-src"></p>
+        </section>
+      </div>
+
+      <section class="card" aria-label="Invoices">
+        <div class="card-head">
+          <h2>Invoices</h2>
+          <input id="grid-search" class="search" type="search" placeholder="Search client, number, status…" />
+        </div>
+        <div id="grid" class="grid"></div>
+      </section>
+
+      <section class="card" aria-label="Activity">
+        <div class="card-head"><h2>Activity</h2></div>
+        <ul id="events" class="events"></ul>
+      </section>
+    </div>
+  </main>
+
+  <footer class="foot">Built for the PayPal AI Hackathon · PayPal Invoicing + Payouts (sandbox) · Google Gemini · AG Grid</footer>
+  <div id="toast" class="toast" role="status"></div>
+  <script src="app.js"></script>
+</body>
+</html>
