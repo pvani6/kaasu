@@ -13,8 +13,9 @@ Kaasu is an AI accounts-receivable agent for freelancers and small businesses. Y
 
 Freelancers lose time and money to late payments. It is rarely because clients refuse to pay. Usually the invoice was forgotten, buried, or never followed up:
 
-- In Bonsai's analysis of invoices from over 100,000 freelancers, **29% were paid late**. ([Bonsai](https://www.hellobonsai.com/blog/late-freelance-payment))
-- Clockify's data shows **42% of freelancers have missed personal bills** because of client payment delays, and most late payments resolve after the **first reminder**. ([Plutio summary](https://www.plutio.com/freelancer-magazine/late-invoice-payments))
+- **29% of invoices are paid late.** Bonsai analyzed three years of invoicing data from its 100,000+ freelancer users. ([Bonsai](https://www.hellobonsai.com/blog/late-freelance-payment))
+- **42% of freelancers have missed personal bills** because a client paid late. ([Clockify](https://clockify.me/late-invoice-statistics))
+- **65–70% of late payments are resolved by the first reminder.** ([SMS Solutions](https://smartsmssolutions.com/resources/blog/business/first-second-third-payment-reminders), via [Plutio](https://www.plutio.com/freelancer-magazine/late-invoice-payments))
 
 So the fix isn't another invoicing form. It's an agent that does the boring follow-up work for you, politely and on time, while you stay in control.
 
