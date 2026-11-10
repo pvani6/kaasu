@@ -5,7 +5,7 @@
 Kaasu is an AI accounts-receivable agent for freelancers and small businesses. You talk to it in plain English, and it creates real **PayPal invoices**, chases late payers with the right tone at the right time, predicts who will pay late, and automatically **splits incoming payments with collaborators via PayPal Payouts**. A human approves every action that emails a client or moves money.
 
 **Live demo:** https://kaasu-84i3.onrender.com *(free tier: the first load can take ~1 minute while the server wakes up)*
-**Demo video:** `https://youtube.com/...`
+**Demo video:** https://youtu.be/oSgdWtVsELs
 
 ---
 
