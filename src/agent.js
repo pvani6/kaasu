@@ -336,6 +336,7 @@ async function runTool(name, args, created) {
       if (!EMAIL_RE.test(email)) return { error: 'A valid client email is required. Ask the user for it.' };
       const items = (args.items || []).map((i) => ({ description: String(i.description || 'Service'), amount: Number(i.amount) })).filter((i) => i.amount > 0);
       if (!items.length) return { error: 'At least one item with a positive amount is required.' };
+      if (items.some((i) => i.amount >= 1000000)) return { error: 'That amount looks wrong (over 1,000,000). Please check the amount and try again.' };
       const currency = String(args.currency || 'USD').toUpperCase().slice(0, 3);
       let due = /^\d{4}-\d{2}-\d{2}$/.test(args.due_date || '') ? args.due_date : addDays(14);
       if (due < todayStr()) due = todayStr();
@@ -467,10 +468,15 @@ async function fallbackChat(text, created, notice) {
   let reply;
   if (/\b(invoice|bill)\b/.test(t) && /\d/.test(t)) {
     const email = (text.match(/[^\s@<>()]+@[^\s@<>()]+\.[a-z]{2,}/i) || [])[0];
-    const amt = text.match(/(?:\$|usd\s?|€|eur\s?|£|gbp\s?|₹|inr\s?)?(\d[\d,]*(?:\.\d{1,2})?)/i);
+    // Ignore digits inside the email (e.g. sb-abc123@...) and prefer an amount with a currency sign.
+    const noEmail = email ? text.replace(email, ' ') : text;
+    const amt = noEmail.match(/(?:\$|usd\s?|€|eur\s?|£|gbp\s?|₹|inr\s?)(\d[\d,]*(?:\.\d{1,2})?)/i)
+      || noEmail.match(/\b(\d[\d,]*(?:\.\d{1,2})?)\b(?!\s*(?:%|days?|weeks?))/i);
     const currency = /€|eur/i.test(text) ? 'EUR' : /£|gbp/i.test(text) ? 'GBP' : /₹|inr/i.test(text) ? 'INR' : 'USD';
     const nameMatch = text.match(/\b(?:invoice|bill)\s+(.+?)(?=\s+[^\s@]+@|\s+(?:\$|usd|€|eur|£|gbp|₹|inr)?\s?\d|\s+for\s|$)/i);
-    const descMatch = text.match(/\bfor\s+(.+?)(?=,?\s+due\b|$)/i);
+    const descMatch = text.match(/\bfor\s+(.+?)(?=,?\s+(?:due|split|give)\b|,|$)/i);
+    const splitMatch = noEmail.match(/(\d{1,2})\s*%/);
+    const splitEmail = (text.replace(email || '', ' ').match(/[^\s@<>(),]+@[^\s@<>(),]+\.[a-z]{2,}/i) || [])[0];
     if (!email) {
       reply = 'Please include the client email, e.g. **Bill John Doe john@client.com $400 for logo design due Friday**.';
     } else {
@@ -480,6 +486,8 @@ async function fallbackChat(text, created, notice) {
         items: [{ description: descMatch ? descMatch[1] : 'Professional services', amount: parseFloat((amt ? amt[1] : '0').replace(/,/g, '')) }],
         currency,
         due_date: parseDue(text) || undefined,
+        split_with_email: splitMatch && splitEmail ? splitEmail : undefined,
+        split_percent: splitMatch && splitEmail ? Number(splitMatch[1]) : undefined,
       }, created);
       reply = res.error ? res.error : `Drafted **${res.invoice.number}** for ${res.invoice.client}: **${res.invoice.amount}**, due ${res.invoice.due_date}. Approve the card to send it through PayPal.`;
     }
@@ -539,7 +547,8 @@ let insightCache = { key: '', at: 0, data: null };
 async function insights(force = false) {
   const s = stats();
   const key = JSON.stringify(s);
-  if (!force && insightCache.data && insightCache.key === key && Date.now() - insightCache.at < 5 * 60_000) return insightCache.data;
+  // Reuse the last answer until the numbers change, so the dashboard's auto-refresh doesn't use up Gemini's free quota.
+  if (!force && insightCache.data && insightCache.key === key && (insightCache.data.source === 'gemini' || Date.now() - insightCache.at < 2 * 60_000)) return insightCache.data;
   let bullets = null;
   let source = 'rules';
   if (ai.MODE === 'gemini') {

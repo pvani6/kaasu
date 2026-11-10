@@ -3,7 +3,9 @@
 
 const KEY = process.env.GEMINI_API_KEY || '';
 const MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+const FALLBACK_MODEL = process.env.GEMINI_FALLBACK_MODEL || 'gemini-2.5-flash-lite';
 const MODE = KEY ? 'gemini' : 'fallback';
+let primaryBlockedUntil = 0; // after a rate-limit, skip the main model for a minute
 
 class AIError extends Error {
   constructor(message, status) {
@@ -13,9 +15,25 @@ class AIError extends Error {
 }
 
 // contents: Gemini "contents" array. tools: array of function declarations.
-async function generate({ system, contents, tools, temperature = 0.4 }) {
+async function generate(opts) {
   if (!KEY) throw new AIError('No GEMINI_API_KEY set', 0);
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(MODEL)}:generateContent`;
+  const models = Date.now() < primaryBlockedUntil ? [FALLBACK_MODEL] : [MODEL, FALLBACK_MODEL];
+  let lastErr;
+  for (const m of [...new Set(models)]) {
+    try {
+      return await generateWith(m, opts);
+    } catch (err) {
+      lastErr = err;
+      // 429 = free-tier limit, 503 = model overloaded: try the lighter model instead.
+      if (!(err instanceof AIError) || ![429, 500, 503].includes(err.status)) throw err;
+      if (m === MODEL) primaryBlockedUntil = Date.now() + 60_000;
+    }
+  }
+  throw lastErr;
+}
+
+async function generateWith(model, { system, contents, tools, temperature = 0.4 }) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`;
   const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-goog-api-key': KEY },
@@ -31,7 +49,7 @@ async function generate({ system, contents, tools, temperature = 0.4 }) {
     const msg = (json.error && json.error.message) || 'HTTP ' + res.status;
     let hint = '';
     if (res.status === 429) hint = ' (free-tier rate limit reached, wait a minute)';
-    if (res.status === 404) hint = ` (model "${MODEL}" not found, set GEMINI_MODEL in .env to a model listed in Google AI Studio)`;
+    if (res.status === 404) hint = ` (model "${model}" not found, set GEMINI_MODEL in .env to a model listed in Google AI Studio)`;
     throw new AIError('Gemini error: ' + msg + hint, res.status);
   }
   const cand = json.candidates && json.candidates[0];
